@@ -5,26 +5,29 @@ import os
 
 app = Flask(__name__)
 
-# שימוש במשתנים מאובטחים של Render
+# שימוש במשתני סביבה לאבטחה
 openai.api_key = os.getenv("OPENAI_API_KEY")
-
-def get_chatgpt_response(user_message):
-    response = openai.ChatCompletion.create(
-        model="gpt-4",
-        messages=[{"role": "system", "content": "אתה נציג מכירות מומחה למוצרי טיפוח, השתמש בטון משכנע ואגרסיבי."},
-                  {"role": "user", "content": user_message}]
-    )
-    return response['choices'][0]['message']['content']
 
 @app.route("/bot", methods=["POST"])
 def bot():
-    incoming_msg = request.values.get("Body", "").strip()
-    response_text = get_chatgpt_response(incoming_msg)
+    try:
+        incoming_msg = request.values.get("Body", "").strip()
+        
+        # הוספת בדיקה לוודא שהבקשה מכילה מידע
+        if not incoming_msg:
+            return "No message received", 400
+        
+        # שליחת הודעת בדיקה חזרה ל-Twilio
+        response_text = f"הודעה התקבלה: {incoming_msg}"
+
+        resp = MessagingResponse()
+        msg = resp.message()
+        msg.body(response_text)
+
+        return str(resp)
     
-    resp = MessagingResponse()
-    msg = resp.message()
-    msg.body(response_text)
-    return str(resp)
+    except Exception as e:
+        return f"Error: {str(e)}", 500
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
