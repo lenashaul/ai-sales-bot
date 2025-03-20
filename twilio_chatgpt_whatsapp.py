@@ -27,7 +27,7 @@ def search_product(query):
     products = get_shopify_products()
     for product in products:
         if query.lower() in product["title"].lower():
-            return f"{product['title']} - {product['body_html']} במחיר של {product['variants'][0]['price']} ש"ח."
+            return f"{product['title']} - {product['body_html']} במחיר של {product['variants'][0]['price']} ש\"ח."
     return "לא נמצא מוצר תואם, אולי תרצי לבדוק מוצרים דומים?"
 
 def get_chatgpt_response(user_input):
