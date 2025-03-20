@@ -10,13 +10,15 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 
 def get_chatgpt_response(message):
     try:
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "אתה עוזר וירטואלי שמתמחה בהמלצות על מוצרים ופתרונות מותאמים אישית."},
-                {"role": "user", "content": message}
-            ]
-        )
+       client = openai.OpenAI()
+response = client.chat.completions.create(
+    model="gpt-3.5-turbo",
+    messages=[
+        {"role": "system", "content": "אתה עוזר וירטואלי"},
+        {"role": "user", "content": incoming_msg}
+    ]
+)
+
         response_text = response["choices"][0]["message"]["content"].strip()
         print(f"🔹 תגובת OpenAI: {response_text}")  # הדפסת התגובה לצורך בדיקה
         return response_text
