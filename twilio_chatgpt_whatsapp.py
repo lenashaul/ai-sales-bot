@@ -1,3 +1,11 @@
+import os
+import openai
+
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
+if not openai.api_key:
+    raise ValueError("🚨 API Key לא נטען כראוי. בדקו את משתני הסביבה ב-Render!")
+
 from flask import Flask, request
 import openai
 from twilio.twiml.messaging_response import MessagingResponse
