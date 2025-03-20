@@ -25,7 +25,8 @@ def bot():
         
         # שליחת ההודעה ל-OpenAI
         try:
-            response = openai.ChatCompletion.create(
+            response = response = openai.client.chat.completions.create(...)
+
                 model="gpt-4",
                 messages=[
                     {"role": "system", "content": "אתה עוזר וירטואלי שמתמחה במכירות ושירות לקוחות."},
