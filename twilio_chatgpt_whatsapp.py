@@ -10,7 +10,7 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 SHOPIFY_STORE_URL = "https://62c2a3-d7.myshopify.com"
 SHOPIFY_ACCESS_TOKEN = os.getenv("SHOPIFY_ACCESS_TOKEN")
 
-openai.api_key = OPENAI_API_KEY
+openai_client = openai.OpenAI(api_key=OPENAI_API_KEY)
 
 def get_shopify_products():
     url = f"{SHOPIFY_STORE_URL}/admin/api/2023-04/products.json"
@@ -27,20 +27,20 @@ def search_product(query):
     products = get_shopify_products()
     for product in products:
         if query.lower() in product["title"].lower():
-            return f"{product['title']} - {product['body_html']} במחיר של {product['variants'][0]['price']} ש\"ח."
+            return f"{product['title']} - {product['body_html']} במחיר של {product['variants'][0]['price']} ש"ח."
     return "לא נמצא מוצר תואם, אולי תרצי לבדוק מוצרים דומים?"
 
 def get_chatgpt_response(user_input):
     product_info = search_product(user_input)
     prompt = f"אתה בוט מכירות של חנות הקוסמטיקה E-L-BEAUTY. לקוח שואל: {user_input}. המידע על המוצר: {product_info}. הצע לו הצעה מעניינת!"
-    response = openai.ChatCompletion.create(
+    response = openai_client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
             {"role": "system", "content": "אתה בוט מכירות ידידותי של חנות הקוסמטיקה E-L-BEAUTY. דבר עם הלקוח בגישה חיובית, ספק מידע רלוונטי על המוצרים, והצע הצעות משכנעות לרכישה."},
             {"role": "user", "content": prompt}
         ]
     )
-    return response["choices"][0]["message"]["content"]
+    return response.choices[0].message.content
 
 @app.route("/bot", methods=["POST"])
 def bot():
