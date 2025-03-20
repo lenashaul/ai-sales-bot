@@ -1,4 +1,11 @@
 import os
+
+api_key = os.getenv("OPENAI_API_KEY")
+
+if not api_key:
+    raise ValueError("🚨 API Key לא נטען כראוי - בדקו את משתני הסביבה ב-Render!")
+
+import os
 import openai
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
