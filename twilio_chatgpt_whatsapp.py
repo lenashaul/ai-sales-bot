@@ -34,6 +34,13 @@ def bot():
     msg.body(response_text)
 
     return str(resp)
+import os
+import openai
+
+openai.api_key = os.getenv("OPENAI_API_KEY")  # שולף את ה-API Key מהסביבה
+
+if openai.api_key is None:
+    raise ValueError("🚨 API Key לא נטען כראוי. בדקו את משתני הסביבה ב-Render!")
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
