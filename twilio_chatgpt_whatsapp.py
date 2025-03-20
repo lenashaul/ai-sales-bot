@@ -5,19 +5,22 @@ import os
 
 app = Flask(__name__)
 
-# שימוש במשתנה סביבה לאבטחת המפתח
+# שימוש במפתח API מהסביבה
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 def get_chatgpt_response(user_message):
     try:
-        response = openai.ChatCompletion.create(  # <-- כאן היה הבעיה העיקרית
+        client = openai.OpenAI()  # 🔹 התחברות ל-API לפי התחביר החדש
+        response = client.chat.completions.create(  
             model="gpt-3.5-turbo",  # או gpt-4 אם יש לך הרשאה
-            messages=[{"role": "system", "content": "אתה בוט חכם"},
-                      {"role": "user", "content": user_message}]
+            messages=[
+                {"role": "system", "content": "אתה עוזר וירטואלי חכם."},
+                {"role": "user", "content": user_message}
+            ]
         )
-        return response["choices"][0]["message"]["content"]
+        return response.choices[0].message.content
     
-    except openai.OpenAIError as e:  # ✅ התחביר החדש
+    except openai.OpenAIError as e:  # ✅ שימוש בתחביר חדש לטיפול בשגיאות
         print(f"🚨 OpenAI API Error: {str(e)}")
         return "❌ אירעה שגיאה בקבלת תשובה מהבינה המלאכותית."
 
