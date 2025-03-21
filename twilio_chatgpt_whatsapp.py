@@ -13,6 +13,7 @@ SHOPIFY_ACCESS_TOKEN = os.getenv("SHOPIFY_ACCESS_TOKEN")
 openai.api_key = OPENAI_API_KEY
 
 def get_shopify_products():
+    """משיכת רשימת המוצרים מחנות Shopify"""
     url = f"{SHOPIFY_STORE_URL}/admin/api/2023-04/products.json"
     headers = {
         "X-Shopify-Access-Token": SHOPIFY_ACCESS_TOKEN,
@@ -24,28 +25,32 @@ def get_shopify_products():
     return []
 
 def search_product(query):
+    """חיפוש מוצר מסוים לפי מילת חיפוש"""
     products = get_shopify_products()
     for product in products:
         if query.lower() in product["title"].lower():
-            return f"{product['title']} - {product['body_html']}\nמחיר: {product['variants'][0]['price']} ש""ח"
+            return f"{product['title']} - {product['body_html']}\nמחיר: {product['variants'][0]['price']} ש\"ח"
     return "לא נמצא מוצר תואם, אולי תרצי לבדוק מוצרים דומים?"
 
 def get_chatgpt_response(user_input):
-import openai
+    """שולח את הודעת הלקוח ל-ChatGPT ומחזיר תגובה מותאמת"""
+    client = openai.OpenAI()  # יצירת לקוח OpenAI
 
-client = openai.OpenAI()  # יצירת לקוח OpenAI
+    product_info = search_product(user_input)  # חיפוש מידע על מוצר מתאים
+    prompt = f"לקוח שואל: {user_input}\nמידע על המוצר: {product_info}\nתן המלצה מעניינת לרכישה."
 
-response = client.chat.completions.create(
-    model="gpt-3.5-turbo",
-    messages=[
-        {"role": "system", "content": "אתה בוט מכירות ידידותי של חנות הקוסמטיקה E-L-BEAUTY. דבר עם הלקוח בגישה חיובית, ספק מידע רלוונטי על המוצרים, והצע הצעות משכנעות לרכישה."},
-        {"role": "user", "content": prompt}
-    ]
-)
-    return response["choices"][0]["message"]["content"]
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "אתה בוט מכירות ידידותי של חנות הקוסמטיקה E-L-BEAUTY. דבר עם הלקוח בגישה חיובית, ספק מידע רלוונטי על המוצרים, והצע הצעות משכנעות לרכישה."},
+            {"role": "user", "content": prompt}
+        ]
+    )
+    return response.choices[0].message.content
 
 @app.route("/bot", methods=["POST"])
 def bot():
+    """נתיב API שמקבל הודעות ומחזיר תגובה מבוססת ChatGPT"""
     incoming_msg = request.form.get("Body", "").strip()
     if not incoming_msg:
         return "", 200
