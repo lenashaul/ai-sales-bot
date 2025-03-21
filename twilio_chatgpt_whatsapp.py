@@ -31,15 +31,17 @@ def search_product(query):
     return "לא נמצא מוצר תואם, אולי תרצי לבדוק מוצרים דומים?"
 
 def get_chatgpt_response(user_input):
-    product_info = search_product(user_input)
-    prompt = f"אתה בוט מכירות של חנות הקוסמטיקה E-L-BEAUTY. לקוח שואל: {user_input}.\n המידע על המוצר: {product_info}. הצע לו הצעה מעניינת!"
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": "אתה בוט מכירות ידידותי של חנות הקוסמטיקה E-L-BEAUTY. דבר עם הלקוח בגישה חיובית, ספק מידע רלוונטי על המוצרים, והצע הצעות משכנעות לרכישה."},
-            {"role": "user", "content": prompt}
-        ]
-    )
+import openai
+
+client = openai.OpenAI()  # יצירת לקוח OpenAI
+
+response = client.chat.completions.create(
+    model="gpt-3.5-turbo",
+    messages=[
+        {"role": "system", "content": "אתה בוט מכירות ידידותי של חנות הקוסמטיקה E-L-BEAUTY. דבר עם הלקוח בגישה חיובית, ספק מידע רלוונטי על המוצרים, והצע הצעות משכנעות לרכישה."},
+        {"role": "user", "content": prompt}
+    ]
+)
     return response["choices"][0]["message"]["content"]
 
 @app.route("/bot", methods=["POST"])
